@@ -54,8 +54,9 @@
                         <label class="label">
                             <span class="label-text font-semibold">Lokasi</span>
                         </label>
-                        <input type="text" name="lokasi" placeholder="Contoh: Stadion Utama"
-                            class="input input-bordered w-full" value="{{ $event->lokasi }}" disabled required />
+                        <input type="text" name="lokasi" class="input input-bordered w-full"
+                            value="{{ $event->lokasi->nama_lokasi ?? '-' }}" disabled required />
+
                     </div>
 
                     <!-- Kategori -->
@@ -125,7 +126,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($tickets as $index => $ticket)
+                        @forelse ($event->tikets as $index => $ticket)
                             <tr>
                                 <th>{{ $index + 1 }}</th>
                                 <td>{{ $ticket->tipe }}</td>

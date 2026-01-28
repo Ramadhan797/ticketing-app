@@ -30,7 +30,6 @@
             </li>
 
             <!-- Event item -->
-            <!-- Event item -->
             <li class="{{ request()->routeIs('admin.events.*') ? 'bg-gray-200 rounded-lg' : '' }}">
                 <a href="{{ route('admin.events.index') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Event">
                     <!-- icon Event -->
@@ -49,6 +48,18 @@
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                     <span class="is-drawer-close:hidden">History Pembelian</span>
+                </a>
+            </li>
+
+            <!-- Lokasi item (baru) -->
+            <li class="{{ request()->routeIs('admin.location.*') ? 'bg-gray-200 rounded-lg' : '' }}">
+                <a href="{{ route('admin.location.index') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Lokasi">
+                    <!-- icon Lokasi (Pin Map) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 1 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span class="is-drawer-close:hidden">Manajemen Lokasi</span>
                 </a>
             </li>
         </ul>

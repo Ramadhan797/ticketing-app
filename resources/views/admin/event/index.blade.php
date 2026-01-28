@@ -25,7 +25,7 @@
                         <th>No</th>
                         <th class="w-1/3">Judul</th>
                         <th>Kategori</th>
-                        <th>Tanggal</th>
+                        <th>Tanggal & Waktu</th>
                         <th>Lokasi</th>
                         <th>Aksi</th>
                     </tr>
@@ -35,9 +35,9 @@
                     <tr>
                         <th>{{ $index + 1 }}</th>
                         <td>{{ $event->judul }}</td>
-                        <td>{{ $event->kategori->nama }}</td>
-                        <td>{{ $event->tanggal_waktu->format('d M Y') }}</td>
-                        <td>{{ $event->lokasi }}</td>
+                        <td>{{ $event->kategori->nama ?? '-' }}</td>
+                        <td>{{ \Carbon\Carbon::parse($event->tanggal_waktu)->format('d M Y H:i') }}</td>
+                        <td>{{ $event->lokasi->nama_lokasi ?? '-' }}</td>
                         <td>
                             <a href="{{ route('admin.events.show', $event->id) }}" class="btn btn-sm btn-info mr-2">Detail</a>
                             <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-sm btn-primary mr-2">Edit</a>
@@ -82,7 +82,5 @@
 
             delete_modal.showModal();
         }
-</script>
-
-
+    </script>
 </x-layouts.admin>

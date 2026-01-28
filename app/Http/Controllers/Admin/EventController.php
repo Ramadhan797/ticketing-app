@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Models\Event;
 use App\Models\Kategori;
+use App\Models\Lokasi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // <-- penting untuk Auth::id()
 
 class EventController extends Controller
 {
@@ -13,8 +16,8 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::all();
-	    return view('admin.event.index', compact('events'));
+        $events = Event::with(['kategori', 'lokasi'])->get(); // eager load
+        return view('admin.event.index', compact('events'));
     }
 
     /**
@@ -23,7 +26,8 @@ class EventController extends Controller
     public function create()
     {
         $categories = Kategori::all();
-        return view('admin.event.create', compact('categories'));
+        $lokasis = Lokasi::all();
+        return view('admin.event.create', compact('categories', 'lokasis'));
     }
 
     /**
@@ -35,19 +39,20 @@ class EventController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'tanggal_waktu' => 'required|date',
-            'lokasi' => 'required|string|max:255',
+            'lokasi_id' => 'required|exists:lokasis,id',
             'kategori_id' => 'required|exists:kategoris,id',
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         // Handle file upload
         if ($request->hasFile('gambar')) {
-            $imageName = time().'.'.$request->gambar->extension();
+            $imageName = time() . '.' . $request->gambar->extension();
             $request->gambar->move(public_path('images/events'), $imageName);
             $validatedData['gambar'] = $imageName;
         }
 
-        $validatedData['user_id'] = auth()->user()->id ?? null;
+        // Gunakan Auth::id() untuk user yang login
+        $validatedData['user_id'] = Auth::id(); // akan null jika belum login
 
         Event::create($validatedData);
 
@@ -59,11 +64,9 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
-        $event = Event::findOrFail($id);
+        $event = Event::with(['kategori', 'lokasi', 'tikets'])->findOrFail($id);
         $categories = Kategori::all();
-        $tickets = $event->tikets;
-
-        return view('admin.event.show', compact('event', 'categories', 'tickets'));
+        return view('admin.event.show', compact('event', 'categories'));
     }
 
     /**
@@ -73,7 +76,9 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
         $categories = Kategori::all();
-        return view('admin.event.edit', compact('event', 'categories'));
+        $lokasis = Lokasi::all();
+        $tickets = $event->tikets;
+        return view('admin.event.edit', compact('event', 'categories', 'lokasis', 'tickets'));
     }
 
     /**
@@ -88,14 +93,14 @@ class EventController extends Controller
                 'judul' => 'required|string|max:255',
                 'deskripsi' => 'required|string',
                 'tanggal_waktu' => 'required|date',
-                'lokasi' => 'required|string|max:255',
+                'lokasi_id' => 'required|exists:lokasis,id',
                 'kategori_id' => 'required|exists:kategoris,id',
                 'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
             // Handle file upload
             if ($request->hasFile('gambar')) {
-                $imageName = time().'.'.$request->gambar->extension();
+                $imageName = time() . '.' . $request->gambar->extension();
                 $request->gambar->move(public_path('images/events'), $imageName);
                 $validatedData['gambar'] = $imageName;
             }
@@ -104,7 +109,9 @@ class EventController extends Controller
 
             return redirect()->route('admin.events.index')->with('success', 'Event berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui event: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors([
+                'error' => 'Terjadi kesalahan saat memperbarui event: ' . $e->getMessage()
+            ]);
         }
     }
 
